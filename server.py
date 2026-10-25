@@ -32,8 +32,19 @@ def showSummary():
 
 @app.route('/book/<competition>/<club>')
 def book(competition,club):
+<<<<<<< Updated upstream
     foundClub = [c for c in clubs if c['name'] == club][0]
     foundCompetition = [c for c in competitions if c['name'] == competition][0]
+=======
+    foundClub = next((c for c in clubs if c['name'] == club), None)
+    if foundClub is None:
+        flash('Club inconnu. Veuillez vérifier le lien de réservation.')
+        return redirect(url_for('index'))
+    foundCompetition = next((c for c in competitions if c['name'] == competition), None)
+    if foundCompetition is None:
+        flash('Compétition inconnue. Veuillez vérifier le lien de réservation.')
+        return redirect(url_for('index'))
+>>>>>>> Stashed changes
     if foundClub and foundCompetition:
         return render_template('booking.html',club=foundClub,competition=foundCompetition)
     else:
