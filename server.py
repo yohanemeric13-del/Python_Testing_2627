@@ -32,6 +32,7 @@ def showSummary():
 
 @app.route('/book/<competition>/<club>')
 def book(competition,club):
+<<<<<<< Updated upstream
     foundClub = [c for c in clubs if c['name'] == club][0]
     foundCompetition = [c for c in competitions if c['name'] == competition][0]
     if foundClub and foundCompetition:
@@ -39,13 +40,28 @@ def book(competition,club):
     else:
         flash("Something went wrong-please try again")
         return render_template('welcome.html', club=club, competitions=competitions)
+=======
+    foundClub = next((c for c in clubs if c['name'] == club), None)
+    if foundClub is None:
+        flash('Club inconnu. Veuillez vérifier le lien de réservation.')
+        return redirect(url_for('index'))
+    foundCompetition = next((c for c in competitions if c['name'] == competition), None)
+    if foundCompetition is None:
+        flash('Compétition inconnue. Veuillez vérifier le lien de réservation.')
+        return redirect(url_for('index'))
+    return render_template('booking.html',club=foundClub,competition=foundCompetition)
+>>>>>>> Stashed changes
 
 
 @app.route('/purchasePlaces',methods=['POST'])
 def purchasePlaces():
     competition = [c for c in competitions if c['name'] == request.form['competition']][0]
     club = [c for c in clubs if c['name'] == request.form['club']][0]
-    placesRequired = int(request.form['places'])
+    try:
+        placesRequired = int(request.form.get('places', ''))
+    except (TypeError, ValueError):
+        flash('Veuillez saisir un nombre entier de places valide.')
+        return render_template('welcome.html', club=club, competitions=competitions)
     competition['numberOfPlaces'] = int(competition['numberOfPlaces'])-placesRequired
     flash('Great-booking complete!')
     return render_template('welcome.html', club=club, competitions=competitions)
