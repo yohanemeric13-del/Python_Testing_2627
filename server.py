@@ -1,17 +1,30 @@
 import json
 from flask import Flask,render_template,request,redirect,flash,url_for
 
+CLUBS_FILE = 'clubs.json'
+COMPETITIONS_FILE = 'competitions.json'
+
 
 def loadClubs():
-    with open('clubs.json') as c:
+    with open(CLUBS_FILE) as c:
          listOfClubs = json.load(c)['clubs']
          return listOfClubs
 
 
 def loadCompetitions():
-    with open('competitions.json') as comps:
+    with open(COMPETITIONS_FILE) as comps:
          listOfCompetitions = json.load(comps)['competitions']
          return listOfCompetitions
+
+
+def saveClubs():
+    with open(CLUBS_FILE, 'w') as c:
+        json.dump({'clubs': clubs}, c, indent=4)
+
+
+def saveCompetitions():
+    with open(COMPETITIONS_FILE, 'w') as comps:
+        json.dump({'competitions': competitions}, comps, indent=4)
 
 
 app = Flask(__name__)
@@ -67,6 +80,8 @@ def purchasePlaces():
         return render_template('welcome.html', club=club, competitions=competitions)
     competition['numberOfPlaces'] = int(competition['numberOfPlaces'])-placesRequired
     club['points'] = str(clubPoints - placesRequired)
+    saveCompetitions()
+    saveClubs()
     flash('Great-booking complete!')
     return render_template('welcome.html', club=club, competitions=competitions)
 
