@@ -13,7 +13,7 @@ class BookingAuthenticationTests(unittest.TestCase):
         ]
         server.competitions = [{
             'name': 'Compétition connue',
-            'date': '2099-01-01',
+            'date': '2099-01-01 12:00:00',
             'numberOfPlaces': 10,
         }]
         self.client = server.app.test_client()

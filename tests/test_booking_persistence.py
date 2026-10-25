@@ -1,3 +1,4 @@
+import json
 import unittest
 from pathlib import Path
 from tempfile import TemporaryDirectory
@@ -17,9 +18,11 @@ class BookingPersistenceTests(unittest.TestCase):
         server.clubs = [{'name': 'Club connu', 'email': 'club@example.com', 'points': '10'}]
         server.competitions = [{
             'name': 'Compétition connue',
-            'date': '2099-01-01',
+            'date': '2099-01-01 12:00:00',
             'numberOfPlaces': 10,
         }]
+        server.CLUBS_FILE.write_text(json.dumps({'clubs': server.clubs}))
+        server.COMPETITIONS_FILE.write_text(json.dumps({'competitions': server.competitions}))
         self.client = server.app.test_client()
         self.client.post('/showSummary', data={'email': 'club@example.com'})
 

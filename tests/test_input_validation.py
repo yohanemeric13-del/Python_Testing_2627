@@ -18,12 +18,12 @@ class InputValidationTests(unittest.TestCase):
         server.competitions = [
             {
                 'name': 'Compétition ouverte',
-                'date': '2099-01-01',
+                'date': '2099-01-01 12:00:00',
                 'numberOfPlaces': 10,
             },
             {
                 'name': 'Compétition complète',
-                'date': '2099-01-02',
+                'date': '2099-01-02 12:00:00',
                 'numberOfPlaces': 0,
             },
         ]

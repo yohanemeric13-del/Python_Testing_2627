@@ -23,7 +23,7 @@ class SecurityTests(unittest.TestCase):
         ]
         server.competitions = [{
             'name': 'Compétition connue',
-            'date': '2099-01-01',
+            'date': '2099-01-01 12:00:00',
             'numberOfPlaces': 10,
         }]
         server.CLUBS_FILE.write_text(json.dumps({'clubs': server.clubs}))

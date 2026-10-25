@@ -10,10 +10,11 @@ class InvalidBookingQuantityTests(unittest.TestCase):
         server.clubs = [{'name': 'Club connu', 'email': 'club@example.com', 'points': 10}]
         server.competitions = [{
             'name': 'Compétition connue',
-            'date': '2099-01-01',
+            'date': '2099-01-01 12:00:00',
             'numberOfPlaces': 10,
         }]
         self.client = server.app.test_client()
+        self.client.post('/showSummary', data={'email': 'club@example.com'})
 
     def tearDown(self):
         server.clubs = self.original_clubs
