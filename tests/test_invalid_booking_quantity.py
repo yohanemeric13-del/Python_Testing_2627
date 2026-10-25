@@ -50,6 +50,13 @@ class InvalidBookingQuantityTests(unittest.TestCase):
         self.assertIn('ne peut pas être négative'.encode(), response.data)
         self.assertEqual(server.competitions[0]['numberOfPlaces'], 10)
 
+    def test_zero_quantity_shows_error_without_changing_stock(self):
+        response = self.post_booking(places='0')
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('doit inclure au moins une place'.encode(), response.data)
+        self.assertEqual(server.competitions[0]['numberOfPlaces'], 10)
+
 
 if __name__ == '__main__':
     unittest.main()
