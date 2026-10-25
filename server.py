@@ -52,6 +52,9 @@ def purchasePlaces():
     except (TypeError, ValueError):
         flash('Veuillez saisir un nombre entier de places valide.')
         return render_template('welcome.html', club=club, competitions=competitions)
+    if placesRequired < 0:
+        flash('La quantité de places ne peut pas être négative.')
+        return render_template('welcome.html', club=club, competitions=competitions)
     competition['numberOfPlaces'] = int(competition['numberOfPlaces'])-placesRequired
     flash('Great-booking complete!')
     return render_template('welcome.html', club=club, competitions=competitions)
