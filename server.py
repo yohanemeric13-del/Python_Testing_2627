@@ -32,15 +32,6 @@ def showSummary():
 
 @app.route('/book/<competition>/<club>')
 def book(competition,club):
-<<<<<<< Updated upstream
-    foundClub = [c for c in clubs if c['name'] == club][0]
-    foundCompetition = [c for c in competitions if c['name'] == competition][0]
-    if foundClub and foundCompetition:
-        return render_template('booking.html',club=foundClub,competition=foundCompetition)
-    else:
-        flash("Something went wrong-please try again")
-        return render_template('welcome.html', club=club, competitions=competitions)
-=======
     foundClub = next((c for c in clubs if c['name'] == club), None)
     if foundClub is None:
         flash('Club inconnu. Veuillez vérifier le lien de réservation.')
@@ -50,7 +41,6 @@ def book(competition,club):
         flash('Compétition inconnue. Veuillez vérifier le lien de réservation.')
         return redirect(url_for('index'))
     return render_template('booking.html',club=foundClub,competition=foundCompetition)
->>>>>>> Stashed changes
 
 
 @app.route('/purchasePlaces',methods=['POST'])
