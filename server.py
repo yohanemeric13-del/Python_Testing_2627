@@ -32,7 +32,10 @@ def showSummary():
 
 @app.route('/book/<competition>/<club>')
 def book(competition,club):
-    foundClub = [c for c in clubs if c['name'] == club][0]
+    foundClub = next((c for c in clubs if c['name'] == club), None)
+    if foundClub is None:
+        flash('Club inconnu. Veuillez vérifier le lien de réservation.')
+        return redirect(url_for('index'))
     foundCompetition = [c for c in competitions if c['name'] == competition][0]
     if foundClub and foundCompetition:
         return render_template('booking.html',club=foundClub,competition=foundCompetition)
