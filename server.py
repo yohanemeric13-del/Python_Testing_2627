@@ -1,4 +1,3 @@
-import json
 import os
 import secrets
 from copy import deepcopy
@@ -6,6 +5,7 @@ from datetime import datetime
 from functools import wraps
 from pathlib import Path
 from flask import Flask,render_template,request,redirect,flash,url_for,session
+import data_store
 
 CLUBS_FILE = 'clubs.json'
 COMPETITIONS_FILE = 'competitions.json'
@@ -17,15 +17,11 @@ def get_secret_key():
 
 
 def loadClubs():
-    with open(CLUBS_FILE) as c:
-         listOfClubs = json.load(c)['clubs']
-         return listOfClubs
+    return data_store.load_clubs(CLUBS_FILE)
 
 
 def loadCompetitions():
-    with open(COMPETITIONS_FILE) as comps:
-         listOfCompetitions = json.load(comps)['competitions']
-         return listOfCompetitions
+    return data_store.load_competitions(COMPETITIONS_FILE)
 
 
 def is_competition_in_supported_year(competition):
@@ -41,13 +37,11 @@ def get_supported_competitions():
 
 
 def saveClubs():
-    with open(CLUBS_FILE, 'w') as c:
-        json.dump({'clubs': clubs}, c, indent=4)
+    data_store.save_clubs(CLUBS_FILE, clubs)
 
 
 def saveCompetitions():
-    with open(COMPETITIONS_FILE, 'w') as comps:
-        json.dump({'competitions': competitions}, comps, indent=4)
+    data_store.save_competitions(COMPETITIONS_FILE, competitions)
 
 
 app = Flask(__name__)
