@@ -58,6 +58,17 @@ class BookingAuthenticationTests(unittest.TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.headers['Location'], '/')
 
+    def test_logout_clears_session_and_blocks_booking(self):
+        self.login_as_known_club()
+        logout_response = self.client.get('/logout')
+        booking_response = self.client.get('/book/Compétition%20connue/Club%20connu')
+
+        self.assertEqual(logout_response.status_code, 302)
+        self.assertEqual(booking_response.status_code, 302)
+        self.assertEqual(booking_response.headers['Location'], '/')
+        with self.client.session_transaction() as session:
+            self.assertNotIn('club_email', session)
+
 
 if __name__ == '__main__':
     unittest.main()
