@@ -51,7 +51,12 @@ def index():
 
 @app.route('/showSummary',methods=['POST'])
 def showSummary():
-    club = [club for club in clubs if club['email'] == request.form['email']][0]
+    email = request.form.get('email', '').strip()
+    club = next((club for club in clubs if club['email'] == email), None)
+    if club is None:
+        session.clear()
+        flash('Adresse e-mail inconnue. Veuillez vérifier votre saisie.')
+        return redirect(url_for('index'))
     session['club_email'] = club['email']
     return render_template('welcome.html',club=club,competitions=competitions)
 
@@ -70,14 +75,24 @@ def book(competition,club):
     if foundCompetition is None:
         flash('Compétition inconnue. Veuillez vérifier le lien de réservation.')
         return redirect(url_for('index'))
+    if int(foundCompetition.get('numberOfPlaces', 0)) <= 0:
+        flash('Cette compétition est complète.')
+        return render_template('welcome.html', club=foundClub, competitions=competitions)
     return render_template('booking.html',club=foundClub,competition=foundCompetition)
 
 
 @app.route('/purchasePlaces',methods=['POST'])
 @login_required
 def purchasePlaces():
-    competition = [c for c in competitions if c['name'] == request.form['competition']][0]
     club = next(c for c in clubs if c['email'] == session['club_email'])
+    competition_name = request.form.get('competition', '').strip()
+    competition = next((c for c in competitions if c['name'] == competition_name), None)
+    if competition is None:
+        flash('Compétition absente ou inconnue.')
+        return render_template('welcome.html', club=club, competitions=competitions)
+    if int(competition.get('numberOfPlaces', 0)) <= 0:
+        flash('Cette compétition est complète.')
+        return render_template('welcome.html', club=club, competitions=competitions)
     try:
         placesRequired = int(request.form.get('places', ''))
     except (TypeError, ValueError):
