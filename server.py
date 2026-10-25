@@ -58,6 +58,9 @@ def purchasePlaces():
     if placesRequired == 0:
         flash('Une réservation doit inclure au moins une place.')
         return render_template('welcome.html', club=club, competitions=competitions)
+    if placesRequired > int(competition['numberOfPlaces']):
+        flash('La quantité demandée dépasse le nombre de places disponibles.')
+        return render_template('welcome.html', club=club, competitions=competitions)
     competition['numberOfPlaces'] = int(competition['numberOfPlaces'])-placesRequired
     flash('Great-booking complete!')
     return render_template('welcome.html', club=club, competitions=competitions)

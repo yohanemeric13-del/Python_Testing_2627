@@ -57,6 +57,13 @@ class InvalidBookingQuantityTests(unittest.TestCase):
         self.assertIn('doit inclure au moins une place'.encode(), response.data)
         self.assertEqual(server.competitions[0]['numberOfPlaces'], 10)
 
+    def test_quantity_above_available_stock_is_rejected(self):
+        response = self.post_booking(places='11')
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('dépasse le nombre de places disponibles'.encode(), response.data)
+        self.assertEqual(server.competitions[0]['numberOfPlaces'], 10)
+
 
 if __name__ == '__main__':
     unittest.main()
