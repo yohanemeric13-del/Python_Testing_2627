@@ -1,5 +1,7 @@
 import json
+from copy import deepcopy
 from functools import wraps
+from pathlib import Path
 from flask import Flask,render_template,request,redirect,flash,url_for,session
 
 CLUBS_FILE = 'clubs.json'
@@ -116,12 +118,36 @@ def purchasePlaces():
     if clubPoints < placesRequired:
         flash('Le club ne dispose pas de suffisamment de points.')
         return render_template('welcome.html', club=club, competitions=competitions)
+    clubSnapshot = deepcopy(club)
+    competitionSnapshot = deepcopy(competition)
+    try:
+        clubFileSnapshot = Path(CLUBS_FILE).read_text()
+        competitionFileSnapshot = Path(COMPETITIONS_FILE).read_text()
+    except OSError:
+        flash('La réservation n’a pas pu être enregistrée. Aucune donnée n’a été modifiée.')
+        return render_template('welcome.html', club=club, competitions=competitions)
     competition['numberOfPlaces'] = int(competition['numberOfPlaces'])-placesRequired
     club['points'] = str(clubPoints - placesRequired)
     bookedPlacesByClub[club['name']] = placesAlreadyBooked + placesRequired
     competition['bookedPlacesByClub'] = bookedPlacesByClub
-    saveCompetitions()
-    saveClubs()
+    try:
+        saveCompetitions()
+        saveClubs()
+    except (OSError, TypeError):
+        club.clear()
+        club.update(clubSnapshot)
+        competition.clear()
+        competition.update(competitionSnapshot)
+        for filePath, fileSnapshot in (
+            (CLUBS_FILE, clubFileSnapshot),
+            (COMPETITIONS_FILE, competitionFileSnapshot),
+        ):
+            try:
+                Path(filePath).write_text(fileSnapshot)
+            except OSError:
+                app.logger.exception('Échec de la restauration de %s après une erreur de sauvegarde.', filePath)
+        flash('La réservation n’a pas pu être enregistrée. Aucune donnée n’a été modifiée.')
+        return render_template('welcome.html', club=club, competitions=competitions)
     placeLabel = 'place' if placesRequired == 1 else 'places'
     flash(f'Réservation confirmée : {placesRequired} {placeLabel}.')
     return render_template('welcome.html', club=club, competitions=competitions)

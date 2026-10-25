@@ -1,6 +1,8 @@
 import unittest
+import json
 from pathlib import Path
 from tempfile import TemporaryDirectory
+from unittest.mock import patch
 
 import server
 
@@ -20,6 +22,8 @@ class BookingPointsBalanceTests(unittest.TestCase):
             'date': '2099-01-01',
             'numberOfPlaces': 10,
         }]
+        server.CLUBS_FILE.write_text(json.dumps({'clubs': server.clubs}))
+        server.COMPETITIONS_FILE.write_text(json.dumps({'competitions': server.competitions}))
         self.client = server.app.test_client()
 
     def tearDown(self):
@@ -54,6 +58,21 @@ class BookingPointsBalanceTests(unittest.TestCase):
         self.assertIn('pas de suffisamment de points'.encode(), response.data)
         self.assertEqual(server.clubs[0]['points'], '2')
         self.assertEqual(server.competitions[0]['numberOfPlaces'], 10)
+
+    def test_save_failure_rolls_back_memory_and_json_files(self):
+        original_clubs_file = server.CLUBS_FILE.read_text()
+        original_competitions_file = server.COMPETITIONS_FILE.read_text()
+
+        with patch('server.saveClubs', side_effect=OSError('disk full')):
+            response = self.post_booking(3)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('n’a pas pu être enregistrée'.encode(), response.data)
+        self.assertEqual(server.clubs[0]['points'], '10')
+        self.assertEqual(server.competitions[0]['numberOfPlaces'], 10)
+        self.assertNotIn('bookedPlacesByClub', server.competitions[0])
+        self.assertEqual(server.CLUBS_FILE.read_text(), original_clubs_file)
+        self.assertEqual(server.COMPETITIONS_FILE.read_text(), original_competitions_file)
 
 
 if __name__ == '__main__':
