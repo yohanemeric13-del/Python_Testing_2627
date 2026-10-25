@@ -94,7 +94,20 @@ python -m coverage run -m pytest
 python -m coverage report
 ```
 
-Pour générer aussi un rapport HTML, exécutez `python -m coverage html`, puis ouvrez `htmlcov/index.html` dans un navigateur. Locust est installé avec les outils de développement ; vérifiez son installation avec `locust --version`. Un scénario de charge Locust (`locustfile.py`) devra être créé avant de lancer un test de charge.
+Pour générer aussi un rapport HTML, exécutez `python -m coverage html`, puis ouvrez `htmlcov/index.html` dans un navigateur.
+
+### Test de performance avec Locust
+
+Le scénario `locustfile.py` consulte l’accueil, le tableau des points, le résumé du club et une page de réservation. Il n’envoie aucune réservation.
+
+Dans un premier terminal, démarrez l’application. Dans un second terminal, à la racine du projet et avec l’environnement virtuel activé, créez le dossier du rapport et lancez une charge de 10 utilisateurs pendant une minute :
+
+```bash
+mkdir -p reports/performance
+locust -f locustfile.py --host http://127.0.0.1:5000 --headless -u 10 -r 2 -t 1m --csv reports/performance/locust --html reports/performance/rapport.html
+```
+
+Le rapport HTML et les résultats CSV seront enregistrés dans `reports/performance/`. Complétez `reports/performance/rapport.md` avec les conditions de test (machine, version de Python, nombre d’utilisateurs et durée), ainsi que les résultats Locust.
 
 ## Données
 
