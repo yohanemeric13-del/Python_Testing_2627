@@ -11,7 +11,10 @@
         {
             "name": "Fall Classic",
             "date": "2020-10-22 13:30:00",
-            "numberOfPlaces": 11
+            "numberOfPlaces": 10,
+            "bookedPlacesByClub": {
+                "She Lifts": 1
+            }
         }
     ]
 }
