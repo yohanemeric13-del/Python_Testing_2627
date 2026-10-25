@@ -20,7 +20,16 @@ class FormAssociationParser(HTMLParser):
 
 class FormLabelTests(unittest.TestCase):
     def setUp(self):
+        self.original_competitions = server.competitions
+        server.competitions = [{
+            'name': 'Spring Festival',
+            'date': '2099-03-27 10:00:00',
+            'numberOfPlaces': 25,
+        }]
         self.client = server.app.test_client()
+
+    def tearDown(self):
+        server.competitions = self.original_competitions
 
     def assert_labels_target_inputs(self, html):
         parser = FormAssociationParser()
