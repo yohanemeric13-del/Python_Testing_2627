@@ -1,4 +1,6 @@
 import json
+import os
+import secrets
 from copy import deepcopy
 from functools import wraps
 from pathlib import Path
@@ -6,6 +8,10 @@ from flask import Flask,render_template,request,redirect,flash,url_for,session
 
 CLUBS_FILE = 'clubs.json'
 COMPETITIONS_FILE = 'competitions.json'
+
+
+def get_secret_key():
+    return os.environ.get('FLASK_SECRET_KEY') or secrets.token_hex(32)
 
 
 def loadClubs():
@@ -31,7 +37,7 @@ def saveCompetitions():
 
 
 app = Flask(__name__)
-app.secret_key = 'something_special'
+app.config['SECRET_KEY'] = get_secret_key()
 
 competitions = loadCompetitions()
 clubs = loadClubs()
