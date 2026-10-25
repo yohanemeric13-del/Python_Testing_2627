@@ -1,81 +1,83 @@
-# Intro
+# Application de réservation de compétitions
+
+Cette application Flask permet aux clubs de consulter les compétitions et de réserver des places avec leurs points. Les données sont conservées dans `clubs.json` et `competitions.json`.
+
+## Prérequis
+
+- Python 3.9 ou une version plus récente (Python 3.14 convient également).
+- Git.
+
+## Installation
+
+Depuis le dossier du projet, créez puis activez un environnement virtuel.
+
+### macOS et Linux
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
 ```
-Hey,
 
-Je viens de recevoir le rapport de QA pour la phase 1 du projet. Il y a plusieurs bogues, dont un qui fait planter l'application ! 
-Malheureusement, je ne suis pas au bureau pour les prochains jours (un de mes enfants est tombé malade ce week-end). 
-Je ne sais pas encore quand je pourrai être là dans la semaine. Pourriez-vous prendre en charge la mise en œuvre du projet ? 
-Vous devrez régler les bogues de la phase 1 et mettre en œuvre les éléments de la phase 2 (j'ai ajouté le travail de la phase 2 et les bogues de la section “issues” du repo). 
+### Windows PowerShell
 
-Vous devrez cloner et forker le repo et le mettre en place sur votre machine locale (tout ce dont vous avez besoin se trouve dans le fichier README). 
-Ensuite, passez en revue les bogues dans la section des problèmes, puis essayez de reproduire les problèmes sur votre machine locale pour résoudre les bogues et ajouter la gestion des erreurs. 
-Pour gagner du temps de configuration, nous utilisons Flask et JSON pour éviter d'utiliser une base de données. 
-La plupart des outils dont vous aurez besoin se trouvent dans le fichier requirements.txt dans le repo, 
-mais vous devrez installer Flask et notre framework de test préféré, pytest, ainsi que notre outil de test de performance, Locust. 
-
-Vous devrez également préparer un rapport de test et un rapport de performances, 
-conformément au guide de développement à la fin des spécifications fonctionnelles ci-jointes. 
-Veillez à suivre toutes les directives, car le QA nous reproche de ne pas respecter les normes. 
-Vous devez tester de manière approfondie les résultats requis (à la fois les happy paths et les sad paths) pour toutes les fonctionnalités de l'application.  
-Je vous encourage également à adopter une approche de TDD, car cela vous aidera à rationaliser votre travail. 
-
-Une fois que vous aurez terminé, nous ferons un examen de ce que vous avez dans la branche QA du code. 
-Nous examinerons les rapports et la manière dont vous avez résolu les problèmes, 
-nous examinerons votre code et nous testerons la couverture de la nouvelle fonctionnalité. 
-
-Merci !
-
+```powershell
+py -3 -m venv .venv
+.venv\Scripts\Activate.ps1
 ```
-1. Why
 
+Si PowerShell bloque l’activation du script, utilisez l’invite de commandes Windows à la place.
 
-    This is a proof of concept (POC) project to show a light-weight version of our competition booking platform. The aim is the keep things as light as possible, and use feedback from the users to iterate.
+### Windows (invite de commandes)
 
-2. Getting Started
+```bat
+py -3 -m venv .venv
+.venv\Scripts\activate.bat
+```
 
-    This project uses the following technologies:
+Une fois l’environnement activé, installez les dépendances sur toutes les plateformes :
 
-    * Python v3.x+
+```text
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
+```
 
-    * [Flask](https://flask.palletsprojects.com/en/1.1.x/)
+## Configuration et lancement
 
-        Whereas Django does a lot of things for us out of the box, Flask allows us to add only what we need. 
-     
+L’application utilise `server.py`. Définissez `FLASK_APP` dans le terminal où vous lancerez Flask.
 
-    * [Virtual environment](https://virtualenv.pypa.io/en/stable/installation.html)
+Pour conserver les sessions après un redémarrage, définissez aussi `FLASK_SECRET_KEY` avec une clé aléatoire. Générez-la avec `python -c "import secrets; print(secrets.token_hex(32))"`, puis copiez la valeur générée dans les commandes ci-dessous. Gardez cette valeur privée et ne l’ajoutez pas à Git. Sans cette variable, l’application génère une clé temporaire au démarrage.
 
-        This ensures you'll be able to install the correct packages without interfering with Python on your machine.
+### macOS et Linux
 
-        Before you begin, please ensure you have this installed globally. 
+```bash
+export FLASK_APP=server
+export FLASK_SECRET_KEY='votre-cle-generee'
+flask run
+```
 
+### Windows PowerShell
 
-3. Installation
+```powershell
+$env:FLASK_APP = "server"
+$env:FLASK_SECRET_KEY = "votre-cle-generee"
+flask run
+```
 
-    - After cloning, change into the directory and type <code>virtualenv .</code>. This will then set up a a virtual python environment within that directory.
+### Windows (invite de commandes)
 
-    - Next, type <code>source bin/activate</code>. You should see that your command prompt has changed to the name of the folder. This means that you can install packages in here without affecting affecting files outside. To deactivate, type <code>deactivate</code>
+```bat
+set FLASK_APP=server
+set FLASK_SECRET_KEY=votre-cle-generee
+flask run
+```
 
-    - Rather than hunting around for the packages you need, you can install in one step. Type <code>pip install -r requirements.txt</code>. This will install all the packages listed in the respective file. If you install a package, make sure others know by updating the requirements.txt file. An easy way to do this is <code>pip freeze > requirements.txt</code>
+Le serveur affiche une adresse locale, généralement `http://127.0.0.1:5000`. Ouvrez cette adresse dans votre navigateur. Pour arrêter le serveur, faites `Ctrl+C` dans le terminal. Ces commandes lancent le serveur de développement Flask, destiné au développement local.
 
-    - Flask requires that you set an environmental variable to the python file. However you do that, you'll want to set the file to be <code>server.py</code>. Check [here](https://flask.palletsprojects.com/en/1.1.x/quickstart/#a-minimal-application) for more details
+## Tests
 
-    - You should now be ready to test the application. In the directory, type either <code>flask run</code> or <code>python -m flask run</code>. The app should respond with an address you should be able to go to using your browser.
+Les tests automatisés du projet se trouvent dans `tests/`. Les dépendances de test et leurs commandes sont documentées dans le guide de développement du projet.
 
-4. Current Setup
+## Données
 
-    The app is powered by [JSON files](https://www.tutorialspoint.com/json/json_quick_guide.htm). This is to get around having a DB until we actually need one. The main ones are:
-     
-    * competitions.json - list of competitions
-    * clubs.json - list of clubs with relevant information. You can look here to see what email addresses the app will accept for login.
-
-5. Testing
-
-    You are free to use whatever testing framework you like-the main thing is that you can show what tests you are using.
-
-    We also like to show how well we're testing, so there's a module called 
-    [coverage](https://coverage.readthedocs.io/en/coverage-5.1/) you should add to your project.
-   
- 6. Flake8 Report 
-    
-
-
+- `competitions.json` contient les compétitions et leurs places disponibles.
+- `clubs.json` contient les clubs, leurs adresses e-mail et leurs points.
