@@ -3,7 +3,10 @@
         {
             "name": "Spring Festival",
             "date": "2020-03-27 10:00:00",
-            "numberOfPlaces": 22
+            "numberOfPlaces": 10,
+            "bookedPlacesByClub": {
+                "She Lifts": 12
+            }
         },
         {
             "name": "Fall Classic",

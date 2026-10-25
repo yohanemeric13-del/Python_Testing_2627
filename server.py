@@ -92,15 +92,23 @@ def purchasePlaces():
     if placesRequired > int(competition['numberOfPlaces']):
         flash('La quantité demandée dépasse le nombre de places disponibles.')
         return render_template('welcome.html', club=club, competitions=competitions)
+    bookedPlacesByClub = competition.get('bookedPlacesByClub', {})
+    placesAlreadyBooked = int(bookedPlacesByClub.get(club['name'], 0))
+    if placesAlreadyBooked + placesRequired > 12:
+        flash('Un club ne peut pas réserver plus de 12 places pour une compétition.')
+        return render_template('welcome.html', club=club, competitions=competitions)
     clubPoints = int(club['points'])
     if clubPoints < placesRequired:
         flash('Le club ne dispose pas de suffisamment de points.')
         return render_template('welcome.html', club=club, competitions=competitions)
     competition['numberOfPlaces'] = int(competition['numberOfPlaces'])-placesRequired
     club['points'] = str(clubPoints - placesRequired)
+    bookedPlacesByClub[club['name']] = placesAlreadyBooked + placesRequired
+    competition['bookedPlacesByClub'] = bookedPlacesByClub
     saveCompetitions()
     saveClubs()
-    flash('Great-booking complete!')
+    placeLabel = 'place' if placesRequired == 1 else 'places'
+    flash(f'Réservation confirmée : {placesRequired} {placeLabel}.')
     return render_template('welcome.html', club=club, competitions=competitions)
 
 
