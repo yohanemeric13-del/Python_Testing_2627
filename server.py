@@ -9,6 +9,7 @@ from flask import Flask,render_template,request,redirect,flash,url_for,session
 
 CLUBS_FILE = 'clubs.json'
 COMPETITIONS_FILE = 'competitions.json'
+MIN_COMPETITION_YEAR = 2026
 
 
 def get_secret_key():
@@ -27,16 +28,16 @@ def loadCompetitions():
          return listOfCompetitions
 
 
-def is_competition_upcoming(competition, current_time=None):
+def is_competition_in_supported_year(competition):
     try:
         competition_time = datetime.strptime(competition.get('date', ''), '%Y-%m-%d %H:%M:%S')
     except (AttributeError, TypeError, ValueError):
         return False
-    return competition_time > (current_time or datetime.now())
+    return competition_time.year >= MIN_COMPETITION_YEAR
 
 
-def get_upcoming_competitions():
-    return [competition for competition in competitions if is_competition_upcoming(competition)]
+def get_supported_competitions():
+    return [competition for competition in competitions if is_competition_in_supported_year(competition)]
 
 
 def saveClubs():
@@ -79,7 +80,7 @@ def showSummary():
         flash('Adresse e-mail inconnue. Veuillez vérifier votre saisie.')
         return redirect(url_for('index'))
     session['club_email'] = club['email']
-    return render_template('welcome.html',club=club,competitions=get_upcoming_competitions())
+    return render_template('welcome.html',club=club,competitions=get_supported_competitions())
 
 
 @app.route('/book/<competition>/<club>')
@@ -96,54 +97,70 @@ def book(competition,club):
     if foundCompetition is None:
         flash('Compétition inconnue. Veuillez vérifier le lien de réservation.')
         return redirect(url_for('index'))
-    if not is_competition_upcoming(foundCompetition):
-        flash('Cette compétition est passée ou sa date est invalide.')
-        return render_template('welcome.html', club=foundClub, competitions=get_upcoming_competitions())
+    if not is_competition_in_supported_year(foundCompetition):
+        flash(f'Cette compétition est antérieure à {MIN_COMPETITION_YEAR} ou sa date est invalide.')
+        return render_template('welcome.html', club=foundClub, competitions=get_supported_competitions())
     if int(foundCompetition.get('numberOfPlaces', 0)) <= 0:
         flash('Cette compétition est complète.')
-        return render_template('welcome.html', club=foundClub, competitions=get_upcoming_competitions())
-    return render_template('booking.html',club=foundClub,competition=foundCompetition)
+        return render_template('welcome.html', club=foundClub, competitions=get_supported_competitions())
+    placesAlreadyBooked = int(
+        foundCompetition.get('bookedPlacesByClub', {}).get(foundClub['name'], 0)
+    )
+    max_places = min(
+        int(foundCompetition['numberOfPlaces']),
+        int(foundClub['points']),
+        12 - placesAlreadyBooked,
+    )
+    if max_places <= 0:
+        flash('Aucune place ne peut être réservée avec le solde ou le plafond actuel.')
+        return render_template('welcome.html', club=foundClub, competitions=get_supported_competitions())
+    return render_template(
+        'booking.html',
+        club=foundClub,
+        competition=foundCompetition,
+        max_places=max_places,
+    )
 
 
 @app.route('/purchasePlaces',methods=['POST'])
 @login_required
 def purchasePlaces():
     club = next(c for c in clubs if c['email'] == session['club_email'])
-    upcoming_competitions = get_upcoming_competitions()
+    displayed_competitions = get_supported_competitions()
     competition_name = request.form.get('competition', '').strip()
     competition = next((c for c in competitions if c['name'] == competition_name), None)
     if competition is None:
         flash('Compétition absente ou inconnue.')
-        return render_template('welcome.html', club=club, competitions=upcoming_competitions)
-    if not is_competition_upcoming(competition):
-        flash('Cette compétition est passée ou sa date est invalide.')
-        return render_template('welcome.html', club=club, competitions=upcoming_competitions)
+        return render_template('welcome.html', club=club, competitions=displayed_competitions)
+    if not is_competition_in_supported_year(competition):
+        flash(f'Cette compétition est antérieure à {MIN_COMPETITION_YEAR} ou sa date est invalide.')
+        return render_template('welcome.html', club=club, competitions=displayed_competitions)
     if int(competition.get('numberOfPlaces', 0)) <= 0:
         flash('Cette compétition est complète.')
-        return render_template('welcome.html', club=club, competitions=upcoming_competitions)
+        return render_template('welcome.html', club=club, competitions=displayed_competitions)
     try:
         placesRequired = int(request.form.get('places', ''))
     except (TypeError, ValueError):
         flash('Veuillez saisir un nombre entier de places valide.')
-        return render_template('welcome.html', club=club, competitions=upcoming_competitions)
+        return render_template('welcome.html', club=club, competitions=displayed_competitions)
     if placesRequired < 0:
         flash('La quantité de places ne peut pas être négative.')
-        return render_template('welcome.html', club=club, competitions=upcoming_competitions)
+        return render_template('welcome.html', club=club, competitions=displayed_competitions)
     if placesRequired == 0:
         flash('Une réservation doit inclure au moins une place.')
-        return render_template('welcome.html', club=club, competitions=upcoming_competitions)
+        return render_template('welcome.html', club=club, competitions=displayed_competitions)
     if placesRequired > int(competition['numberOfPlaces']):
         flash('La quantité demandée dépasse le nombre de places disponibles.')
-        return render_template('welcome.html', club=club, competitions=upcoming_competitions)
+        return render_template('welcome.html', club=club, competitions=displayed_competitions)
     bookedPlacesByClub = competition.get('bookedPlacesByClub', {})
     placesAlreadyBooked = int(bookedPlacesByClub.get(club['name'], 0))
     if placesAlreadyBooked + placesRequired > 12:
         flash('Un club ne peut pas réserver plus de 12 places pour une compétition.')
-        return render_template('welcome.html', club=club, competitions=upcoming_competitions)
+        return render_template('welcome.html', club=club, competitions=displayed_competitions)
     clubPoints = int(club['points'])
     if clubPoints < placesRequired:
         flash('Le club ne dispose pas de suffisamment de points.')
-        return render_template('welcome.html', club=club, competitions=upcoming_competitions)
+        return render_template('welcome.html', club=club, competitions=displayed_competitions)
     clubSnapshot = deepcopy(club)
     competitionSnapshot = deepcopy(competition)
     try:
@@ -151,7 +168,7 @@ def purchasePlaces():
         competitionFileSnapshot = Path(COMPETITIONS_FILE).read_text()
     except OSError:
         flash('La réservation n’a pas pu être enregistrée. Aucune donnée n’a été modifiée.')
-        return render_template('welcome.html', club=club, competitions=upcoming_competitions)
+        return render_template('welcome.html', club=club, competitions=displayed_competitions)
     competition['numberOfPlaces'] = int(competition['numberOfPlaces'])-placesRequired
     club['points'] = str(clubPoints - placesRequired)
     bookedPlacesByClub[club['name']] = placesAlreadyBooked + placesRequired
@@ -173,10 +190,10 @@ def purchasePlaces():
             except OSError:
                 app.logger.exception('Échec de la restauration de %s après une erreur de sauvegarde.', filePath)
         flash('La réservation n’a pas pu être enregistrée. Aucune donnée n’a été modifiée.')
-        return render_template('welcome.html', club=club, competitions=upcoming_competitions)
+        return render_template('welcome.html', club=club, competitions=displayed_competitions)
     placeLabel = 'place' if placesRequired == 1 else 'places'
     flash(f'Réservation confirmée : {placesRequired} {placeLabel}.')
-    return render_template('welcome.html', club=club, competitions=get_upcoming_competitions())
+    return render_template('welcome.html', club=club, competitions=get_supported_competitions())
 
 
 @app.route('/points')
