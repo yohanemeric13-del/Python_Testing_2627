@@ -1,5 +1,6 @@
 import json
-from flask import Flask,render_template,request,redirect,flash,url_for
+from functools import wraps
+from flask import Flask,render_template,request,redirect,flash,url_for,session
 
 CLUBS_FILE = 'clubs.json'
 COMPETITIONS_FILE = 'competitions.json'
@@ -33,6 +34,17 @@ app.secret_key = 'something_special'
 competitions = loadCompetitions()
 clubs = loadClubs()
 
+
+def login_required(view):
+    @wraps(view)
+    def wrapped_view(*args, **kwargs):
+        email = session.get('club_email')
+        if not email or not any(club['email'] == email for club in clubs):
+            flash('Veuillez vous connecter avant de réserver.')
+            return redirect(url_for('index'))
+        return view(*args, **kwargs)
+    return wrapped_view
+
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -40,14 +52,19 @@ def index():
 @app.route('/showSummary',methods=['POST'])
 def showSummary():
     club = [club for club in clubs if club['email'] == request.form['email']][0]
+    session['club_email'] = club['email']
     return render_template('welcome.html',club=club,competitions=competitions)
 
 
 @app.route('/book/<competition>/<club>')
+@login_required
 def book(competition,club):
     foundClub = next((c for c in clubs if c['name'] == club), None)
     if foundClub is None:
         flash('Club inconnu. Veuillez vérifier le lien de réservation.')
+        return redirect(url_for('index'))
+    if foundClub['email'] != session.get('club_email'):
+        flash('Vous ne pouvez réserver que pour votre club.')
         return redirect(url_for('index'))
     foundCompetition = next((c for c in competitions if c['name'] == competition), None)
     if foundCompetition is None:
@@ -57,9 +74,10 @@ def book(competition,club):
 
 
 @app.route('/purchasePlaces',methods=['POST'])
+@login_required
 def purchasePlaces():
     competition = [c for c in competitions if c['name'] == request.form['competition']][0]
-    club = [c for c in clubs if c['name'] == request.form['club']][0]
+    club = next(c for c in clubs if c['email'] == session['club_email'])
     try:
         placesRequired = int(request.form.get('places', ''))
     except (TypeError, ValueError):
