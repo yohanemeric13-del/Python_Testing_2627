@@ -69,6 +69,25 @@ class BookingAuthenticationTests(unittest.TestCase):
         with self.client.session_transaction() as session:
             self.assertNotIn('club_email', session)
 
+    def test_full_session_lifecycle_protects_booking_routes(self):
+        before_login = self.client.get('/book/Compétition%20connue/Club%20connu')
+        login_response = self.login_as_known_club()
+        during_login = self.client.get('/book/Compétition%20connue/Club%20connu')
+        logout_response = self.client.get('/logout')
+        after_logout = self.client.post('/purchasePlaces', data={
+            'club': 'Club connu',
+            'competition': 'Compétition connue',
+            'places': '1',
+        })
+
+        self.assertEqual(before_login.status_code, 302)
+        self.assertEqual(login_response.status_code, 200)
+        self.assertEqual(during_login.status_code, 200)
+        self.assertEqual(logout_response.status_code, 302)
+        self.assertEqual(after_logout.status_code, 302)
+        self.assertEqual(server.clubs[0]['points'], '10')
+        self.assertEqual(server.competitions[0]['numberOfPlaces'], 10)
+
 
 if __name__ == '__main__':
     unittest.main()
