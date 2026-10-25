@@ -4,7 +4,7 @@ Cette application Flask permet aux clubs de consulter les compétitions et de r�
 
 ## Prérequis
 
-- Python 3.9 ou une version plus récente (Python 3.14 convient également).
+- Python 3.11 ou une version plus récente (Python 3.14 convient également). Locust, utilisé pour les tests de performance, nécessite Python 3.11 ou plus récent.
 - Git.
 
 ## Installation
@@ -75,7 +75,26 @@ Le serveur affiche une adresse locale, généralement `http://127.0.0.1:5000`. O
 
 ## Tests
 
-Les tests automatisés du projet se trouvent dans `tests/`. Les dépendances de test et leurs commandes sont documentées dans le guide de développement du projet.
+Les dépendances de l’application, les outils de test et l’outil de mesure de performance sont tous listés dans `requirements.txt`. Installe-les avec :
+
+```text
+python -m pip install -r requirements.txt
+```
+
+Lancer les tests automatisés avec pytest :
+
+```text
+python -m pytest
+```
+
+Mesurer la couverture de ces tests et afficher le rapport dans le terminal :
+
+```text
+python -m coverage run -m pytest
+python -m coverage report
+```
+
+Pour générer aussi un rapport HTML, exécutez `python -m coverage html`, puis ouvrez `htmlcov/index.html` dans un navigateur. Locust est installé avec les outils de développement ; vérifiez son installation avec `locust --version`. Un scénario de charge Locust (`locustfile.py`) devra être créé avant de lancer un test de charge.
 
 ## Données
 
