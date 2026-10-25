@@ -99,6 +99,7 @@ Pour générer aussi un rapport HTML, exécutez `python -m coverage html`, puis 
 ### Test de performance avec Locust
 
 Le scénario `locustfile.py` consulte l’accueil, le tableau des points, le résumé du club et une page de réservation. Il n’envoie aucune réservation.
+Pour vérifier que Locust est installé, exécutez `locust --version`.
 
 Dans un premier terminal, démarrez l’application. Dans un second terminal, à la racine du projet et avec l’environnement virtuel activé, créez le dossier du rapport et lancez une charge de 10 utilisateurs pendant une minute :
 
