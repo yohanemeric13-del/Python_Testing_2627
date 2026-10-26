@@ -1,5 +1,7 @@
 :root {
     color-scheme: light;
+    --bs-primary: #087f75;
+    --bs-primary-rgb: 8, 127, 117;
     --ink: #182b3a;
     --muted: #5b7181;
     --navy: #102a43;
@@ -57,6 +59,8 @@ input { width: 100%; min-height: 48px; padding: 10px 13px; border: 1px solid #bd
 input:hover { border-color: #829ba5; }
 .help-text, .muted { color: var(--muted); font-size: 14px; }
 button, .button-link { display: inline-flex; min-height: 46px; justify-content: center; align-items: center; width: fit-content; padding: 10px 18px; border: 0; border-radius: 10px; color: white; background: var(--teal); font: inherit; font-weight: 700; text-decoration: none; cursor: pointer; transition: background .15s ease, transform .15s ease; }
+.btn-primary { --bs-btn-bg: #087f75; --bs-btn-border-color: #087f75; --bs-btn-hover-bg: #06645d; --bs-btn-hover-border-color: #06645d; --bs-btn-active-bg: #06645d; --bs-btn-active-border-color: #06645d; }
+.btn-outline-primary { --bs-btn-color: #06645d; --bs-btn-border-color: #087f75; --bs-btn-hover-bg: #087f75; --bs-btn-hover-border-color: #087f75; }
 button:hover, .button-link:hover { color: white; background: var(--teal-dark); transform: translateY(-1px); }
 .text-link { display: inline-block; margin-top: 20px; font-weight: 650; }
 .flash-list { margin-bottom: 20px; }

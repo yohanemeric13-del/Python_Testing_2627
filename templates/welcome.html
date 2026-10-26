@@ -1,15 +1,15 @@
 {% extends 'base.html' %}
 
 {% block title %}Summary | GUDLFT Registration{% endblock %}
-{% block header_action %}<a class="header-link" href="{{ url_for('logout') }}">Logout</a>{% endblock %}
+{% block header_action %}<a class="header-link btn btn-outline-light btn-sm" href="{{ url_for('logout') }}">Logout</a>{% endblock %}
 
 {% block content %}
-<div class="account-row">
+<div class="account-row card shadow-sm border-0 p-4">
     <div>
         <p class="eyebrow">Club dashboard</p>
         <h1>Welcome, {{ club['email'] }}</h1>
     </div>
-    <div class="points-badge"><span aria-hidden="true">✦</span> Points available: {{ club['points'] }}</div>
+    <div class="points-badge badge rounded-pill"><span aria-hidden="true">✦</span> Points available: {{ club['points'] }}</div>
 </div>
 <section aria-labelledby="competitions-title">
     <div class="section-heading">
@@ -20,9 +20,9 @@
         <span class="muted">{{ competitions|length }} listed</span>
     </div>
     {% if competitions %}
-    <ul class="competition-list">
+    <ul class="competition-list list-unstyled">
         {% for comp in competitions %}
-        <li class="competition-card">
+        <li class="competition-card card shadow-sm border-0">
             <div>
                 <h3>{{ comp['name'] }}</h3>
                 <div class="competition-meta">
@@ -32,7 +32,7 @@
             </div>
             {% if comp['numberOfPlaces']|int > 0 %}
             <div class="competition-action">
-                <a class="button-link" href="{{ url_for('book', competition=comp['name'], club=club['name']) }}">Book Places</a>
+                <a class="button-link btn btn-primary" href="{{ url_for('book', competition=comp['name'], club=club['name']) }}">Book Places</a>
             </div>
             {% else %}
             <span class="muted">Fully booked</span>
@@ -41,7 +41,7 @@
         {% endfor %}
     </ul>
     {% else %}
-    <p class="empty-state">There are no competitions available at the moment.</p>
+    <p class="empty-state alert alert-info">There are no competitions available at the moment.</p>
     {% endif %}
 </section>
 {% endblock %}

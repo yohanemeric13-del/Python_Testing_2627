@@ -8,8 +8,8 @@
     <h1>Club points</h1>
     <p class="subheading">A public overview of the points currently available to each club.</p>
 </section>
-<div class="table-wrap">
-    <table>
+<div class="table-wrap shadow-sm">
+    <table class="table table-striped table-hover mb-0">
         <thead>
             <tr>
                 <th scope="col">Club</th>
@@ -28,5 +28,5 @@
         </tbody>
     </table>
 </div>
-<a class="text-link" href="{{ url_for('index') }}">← Back to home</a>
+<a class="text-link btn btn-outline-primary mt-4" href="{{ url_for('index') }}">← Back to home</a>
 {% endblock %}

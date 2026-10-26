@@ -4,17 +4,17 @@
 
 {% block content %}
 <p class="eyebrow">Competition booking</p>
-<section class="card booking-card" aria-labelledby="competition-title">
+<section class="card booking-card shadow-sm border-0" aria-labelledby="competition-title">
     <h1 id="competition-title">{{ competition['name'] }}</h1>
     <div class="available"><strong>{{ competition['numberOfPlaces'] }}</strong><span>Places available</span></div>
     <form action="{{ url_for('purchasePlaces') }}" method="post" class="form-stack">
         <input type="hidden" name="club" value="{{ club['name'] }}">
         <input type="hidden" name="competition" value="{{ competition['name'] }}">
         <label for="places">How many places?</label>
-        <input type="number" name="places" id="places" required min="1" max="{{ max_places }}" step="1" aria-describedby="places-help">
+        <input class="form-control" type="number" name="places" id="places" required min="1" max="{{ max_places }}" step="1" aria-describedby="places-help">
         <small class="help-text" id="places-help">Enter a whole number from 1 to {{ max_places }}.</small>
-        <button type="submit">Book places</button>
+        <button class="btn btn-primary" type="submit">Book places</button>
     </form>
-    <a class="text-link" href="{{ url_for('dashboard') }}">Return to your club summary</a>
+    <a class="text-link btn btn-outline-secondary mt-4" href="{{ url_for('dashboard') }}">Return to your club summary</a>
 </section>
 {% endblock %}

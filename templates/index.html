@@ -8,14 +8,14 @@
     <h1>Welcome to the GUDLFT Registration Portal!</h1>
     <p class="subheading">Manage competition bookings and keep track of your club points in one place.</p>
 </section>
-<section class="card narrow-card" aria-labelledby="login-title">
+<section class="card narrow-card shadow-sm border-0" aria-labelledby="login-title">
     <h2 id="login-title">Sign in to your club</h2>
     <p class="muted">Please enter your secretary email to continue.</p>
     <form action="{{ url_for('showSummary') }}" method="post" class="form-stack">
         <label for="email">Email:</label>
-        <input type="email" name="email" id="email" required autocomplete="email">
-        <button type="submit">Enter</button>
+        <input class="form-control" type="email" name="email" id="email" required autocomplete="email">
+        <button class="btn btn-primary" type="submit">Enter</button>
     </form>
-    <a class="text-link" href="{{ url_for('points') }}">View club points →</a>
+    <a class="text-link btn btn-outline-primary mt-4" href="{{ url_for('points') }}">View club points →</a>
 </section>
 {% endblock %}
