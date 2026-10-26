@@ -1,36 +1,47 @@
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Summary | GUDLFT Registration</title>
-</head>
-<body>
-        <h2>Welcome, {{club['email']}} </h2><a href="{{url_for('logout')}}">Logout</a>
+{% extends 'base.html' %}
 
-    {% with messages = get_flashed_messages()%}
-    {% if messages %}
-        <ul>
-       {% for message in messages %}
-            <li>{{message}}</li>
-        {% endfor %}
-       </ul>
-    {% endif%}
-    Points available: {{club['points']}}
-    <h3>Competitions:</h3>
-    <ul>
-        {% for comp in competitions%}
-        <li>
-            {{comp['name']}}<br />
-            Date: {{comp['date']}}</br>
-            Number of Places: {{comp['numberOfPlaces']}}
-            {%if comp['numberOfPlaces']|int >0%}
-            <a href="{{ url_for('book',competition=comp['name'],club=club['name']) }}">Book Places</a>
-            {%endif%}
+{% block title %}Summary | GUDLFT Registration{% endblock %}
+{% block header_action %}<a class="header-link" href="{{ url_for('logout') }}">Logout</a>{% endblock %}
+
+{% block content %}
+<div class="account-row">
+    <div>
+        <p class="eyebrow">Club dashboard</p>
+        <h1>Welcome, {{ club['email'] }}</h1>
+    </div>
+    <div class="points-badge"><span aria-hidden="true">✦</span> Points available: {{ club['points'] }}</div>
+</div>
+<section aria-labelledby="competitions-title">
+    <div class="section-heading">
+        <div>
+            <p class="eyebrow">Plan your next event</p>
+            <h2 id="competitions-title">Competitions:</h2>
+        </div>
+        <span class="muted">{{ competitions|length }} listed</span>
+    </div>
+    {% if competitions %}
+    <ul class="competition-list">
+        {% for comp in competitions %}
+        <li class="competition-card">
+            <div>
+                <h3>{{ comp['name'] }}</h3>
+                <div class="competition-meta">
+                    <span>Date: {{ comp['date'] }}</span>
+                    <span>Number of Places: {{ comp['numberOfPlaces'] }}</span>
+                </div>
+            </div>
+            {% if comp['numberOfPlaces']|int > 0 %}
+            <div class="competition-action">
+                <a class="button-link" href="{{ url_for('book', competition=comp['name'], club=club['name']) }}">Book Places</a>
+            </div>
+            {% else %}
+            <span class="muted">Fully booked</span>
+            {% endif %}
         </li>
-        <hr />
         {% endfor %}
     </ul>
-    {%endwith%}
-
-</body>
-</html>
+    {% else %}
+    <p class="empty-state">There are no competitions available at the moment.</p>
+    {% endif %}
+</section>
+{% endblock %}

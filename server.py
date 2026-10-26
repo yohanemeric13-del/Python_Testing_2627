@@ -65,6 +65,16 @@ def login_required(view):
 def index():
     return render_template('index.html')
 
+@app.route('/dashboard')
+@login_required
+def dashboard():
+    club = next(c for c in clubs if c['email'] == session['club_email'])
+    return render_template(
+        'welcome.html',
+        club=club,
+        competitions=get_supported_competitions(),
+    )
+
 @app.route('/showSummary',methods=['POST'])
 def showSummary():
     email = request.form.get('email', '').strip()

@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#102a43">
+    <title>{% block title %}GUDLFT Registration{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <header class="site-header">
+        <a class="brand" href="{{ url_for('dashboard') if session.get('club_email') else url_for('index') }}" aria-label="GUDLFT home">
+            <span class="brand-mark" aria-hidden="true">G</span>
+            <span>GUDLFT <span class="brand-light">CLUB PORTAL</span></span>
+        </a>
+        {% block header_action %}{% endblock %}
+    </header>
+    <main class="page-shell">
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <div class="flash-list" role="status" aria-live="polite">
+                    {% for message in messages %}<p class="flash-message">{{ message }}</p>{% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+        {% block content %}{% endblock %}
+    </main>
+    <footer class="site-footer">GUDLFT · Club registration portal</footer>
+</body>
+</html>
